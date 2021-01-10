@@ -17,4 +17,3 @@ The Carpathian Mountains constitute Europe's largest temperate forest ecosystems
 *(My result animation shows just a small part of clear cut area in Carpathian. And the time period on the animation is interpolated and does not correspond to the real time period so cannot be analyed as real values)*
 
 ![final(1)](https://user-images.githubusercontent.com/46812161/104138664-dc8efe00-53a5-11eb-80ce-3e2ab80ddaf9.gif)
-![](final(1).gif)
