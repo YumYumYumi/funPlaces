@@ -70,7 +70,7 @@ head(rtsVis:::.ts_get_frametimes(rom_crop_filled_interpolated)) #check
 #save RDS (R session loves being aborted)
 saveRDS(rom_crop_filled_interpolated_2, "rom_crop_filled_interpolated_2.rds")
 
-rom_crop_filled_interpolated_2 <- readRDS("./rom_crop_filled_interpolated_2.rds")
+rom_crop_filled_interpolated_2 <- readRDS("./ROM1/rom_crop_filled_interpolated_2.rds")
 
 
 # load shapefiles (deforestation area [ha]) and set polygon coordinate 
@@ -104,7 +104,7 @@ r_frames[[5]]
 #Adding additional Elements to the Frames
 r_frames_styled <- r_frames %>%
   moveVis::add_labels(x = "Longitude", y = "Latitude")%>% 
-  moveVis::add_northarrow(colour = "white", position = "bottomleft") %>% 
+  moveVis::add_northarrow(colour = "white", position = "upperright", label_margin = 1.5) %>% 
   moveVis::add_timestamps(type = "label") %>% 
   moveVis::add_progress()
 
@@ -113,19 +113,28 @@ r_frames_styled[[5]]  #check a single image
 # I want to add my polygon data on the landsat images but I could not find how to do it
 # with this package so I just did it manually... 
 
-r1 <- r_frames_styled[[1]] + geom_sf(data=shp10, color = "white", fill =NA, alpha = 0.4)
+r1 <- r_frames_styled[[1]] + geom_sf(data=shp10, color = "white", fill =NA, alpha = 0.4) 
 r2 <- r_frames_styled[[2]] + geom_sf(data=shp10, color = "white", fill =NA, alpha = 0.4)
-r3 <- r_frames_styled[[3]] + geom_sf(data=shp11, color = "white", fill =NA, alpha = 0.4)
-r4 <- r_frames_styled[[4]] + geom_sf(data=shp11, color = "white", fill =NA, alpha = 0.4)
-r5 <- r_frames_styled[[5]] + geom_sf(data=shp13, color = "white", fill =NA, alpha = 0.4)
-r6 <- r_frames_styled[[6]] + geom_sf(data=shp13, color = "white", fill =NA, alpha = 0.4)
-r7 <- r_frames_styled[[7]] + geom_sf(data=shp14, color = "white", fill =NA, alpha = 0.4)
-r8 <- r_frames_styled[[8]] + geom_sf(data=shp14, color = "white", fill =NA, alpha = 0.4)
+r3 <- r_frames_styled[[3]] + geom_sf(data=shp11, color = "white", fill =NA, alpha = 0.4) 
+r4 <- r_frames_styled[[4]] + geom_sf(data=shp11, color = "white", fill =NA, alpha = 0.4) 
+r5 <- r_frames_styled[[5]] + geom_sf(data=shp13, color = "white", fill =NA, alpha = 0.4) 
+r6 <- r_frames_styled[[6]] + geom_sf(data=shp13, color = "white", fill =NA, alpha = 0.4) 
+r7 <- r_frames_styled[[7]] + geom_sf(data=shp14, color = "white", fill =NA, alpha = 0.4) 
+r8 <- r_frames_styled[[8]] + geom_sf(data=shp14, color = "white", fill =NA, alpha = 0.4) 
 r9 <- r_frames_styled[[9]] + geom_sf(data=shp15, color = "white", fill =NA, alpha = 0.4)
 r10 <- r_frames_styled[[10]] + geom_sf(data=shp15, color = "white", fill =NA, alpha = 0.4)
-
-
 frames <- list(r1, r2, r3, r4, r5, r6, r7, r8, r9, r10) #this package loves list
+
+for(i in 1:length(frames)) {
+  r <- frames[[i]] + labs(title = "Deforestation area in Carpathian",
+                   subtitle = "Ucisoara valley, Uceamare Valley, Sambata Valley \n (changing polygons show the deforestation area)",
+                   caption = "Data source: USGS.GOV") +
+    theme(plot.title = element_text(color = "black", size = 16, face = "bold", hjust = 0.5),
+          plot.subtitle = element_text(size = 12, hjust = 0.5),
+          plot.caption = element_text(color = "gray", face = "italic"))
+  frames[[i]] <- r
+}
+
 frames[[2]]
 
 # check how the images with polygons will be seen 
@@ -176,25 +185,28 @@ df2 <- data.frame(x = seq(2011,2015.5,by=0.5),
 
 plot_list <- list()
 for(i in 1:10){
-  p1 <- ggplot(aes(x=x, y=y, size=x, fill = y), data = slice(df2, c(1:i))) +
+  p1 <- ggplot(aes(x=x, y=y, size=y), data = slice(df2, c(1:i))) +
     geom_segment(aes(x=x, xend=x, y=0, yend=y), data = slice(df2, c(1:i)),
                  size=1, color="gray", linetype="dotdash") +
-    geom_point(color="gray", alpha=0.9, shape=21, stroke=2) +
+    geom_point(color="palegreen3", alpha=0.9, shape=21, stroke=2) +
     geom_text(aes(label = y), size=3.5) +
-    scale_size(range = c(3, 20), name="deforestration area (ha)") +
-    scale_fill_viridis(guide=F, option="D") +
+    #scale_size_manual(values = c(200, 400, 600, 800, 1000), name="deforestration area (ha)")+
+    scale_size(range = c(3, 20), name="deforestration area (ha)", breaks = c(200, 400, 600, 800, 1000)) + 
+    #scale_fill_viridis(guide=F, option="D") +
     theme_ipsum() +
     theme(legend.position="bottom")+
     ylab("deforestration area (ha)") +
     xlab("year") +
-    theme(legend.position = "none") + 
+    #theme(legend.position = "none") + 
     coord_cartesian(xlim = c(2011.0, 2015.5), ylim = c(100, 1000)) 
+  
   plot_list[[i]] <- p1
 }
 
 joined <- moveVis::join_frames(frames_lists = list(frames, plot_list))
 moveVis::animate_frames(joined,
-                        out_file = "test8.gif",
+                        out_file = "test14.gif",
                         fps = 2,
-                        width=1600)
+                        width=1600, 
+                        height = 450)
 
